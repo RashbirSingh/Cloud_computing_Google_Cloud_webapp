@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>USER PAGE</title>
+</head>
+<body>
+<h1>USER PAGE</h1>
+
+<form action="changepass" method="post">
+
+    <div class="container">
+        <label for="oldpass"><b>OLD PASSWORD</b></label>
+        <input type="text" placeholder="OLD PASSWORD" name="oldpass" required>
+        <br>
+        <label for="newpass"><b>NEW PASSWORD</b></label>
+        <input type="password" placeholder="NEW PASSWORD" name="newpass" required>
+        <br>
+        <button type="submit">Change</button>
+
+    </div>
+
+    </form>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <h1>Message Display Area</h1>
+
+                {% for eachPost in postquerylist %}
+                Subject: {{ eachPost.subject }} <br>
+                Message Text: {{ eachPost.msg }} <br>
+                Image: <img src="static/postimage/{{ eachPost.img }}" width="360" height="240"> <br>
+                Date and Time: {{ eachPost.datetime }} <br>
+                User Name: {{ eachPost.user_names }} <br>
+                User Image: <img src="static/userimage/{{ eachPost.userImage }}" width="80" height="80"> <br>
+                <form action="editpost" method="post">
+                   <input name="postid" type="hidden" value="{{ eachPost.id }}">
+                   <button type="submit">Edit</button>
+               </form>
+                <hr>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+</html>
