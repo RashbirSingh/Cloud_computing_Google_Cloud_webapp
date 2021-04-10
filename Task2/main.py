@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, render_template
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="static/s3810585assignment1task2-3b3152f785f7.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="static/s3810585assignment1task2-5367f1373800.json"
 
 from google.cloud import bigquery
 
