@@ -1,11 +1,11 @@
 from datetime import datetime
-from flask import Flask, render_template, render_template_string
+from flask import Flask, render_template
 from flask import request, session
 from google.cloud import datastore, storage
 
 import os
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="static/s3810585assignment1-433bbcbb30a7.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="static/s3810585assignment1task1-6a775df76ad2.json"
 
 datastore_client = datastore.Client()
 
@@ -28,7 +28,41 @@ def download_blob(bucket_name, source_blob_name, destination_blob_name):
 
 @app.route('/')
 def root():
-    return render_template('index.html')
+    if 'CurrentActiveUser' in session:
+        return render_template('index.html',
+                               userlog = "logout",
+                               userlogimage = "log-out",
+                               userlogtext = " Logout")
+    else:
+        return render_template('index.html',
+                               userlog="login",
+                               userlogimage="log-in",
+                               userlogtext=" Login")
+
+@app.route('/forum')
+def forum():
+    if 'CurrentActiveUser' in session:
+        kindUserImg = "User"
+        id = session["CurrentActiveUser"]
+        postquery = datastore_client.query(kind="postbox")
+        postquerylist = list(postquery.fetch(limit=10))
+        keyImg = datastore_client.key(kindUserImg, id)
+        taskImg = datastore_client.get(keyImg)
+
+        download_blob(taskImg["bucketname"],
+                      taskImg["userimage"],
+                      "static/userimage/" + taskImg["userimage"])
+        return render_template('forum.html', user_name=session["CurrentActiveUserName"],
+                               userImageURL="static/userimage/" + taskImg["userimage"],
+                               postquerylist=postquerylist
+                               )
+    else:
+        return render_template('notification.html',
+                               notification="Please Login to Access this Page",
+                               userlog="login",
+                               userlogimage="log-in",
+                               userlogtext=" Login"
+                               )
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -58,16 +92,21 @@ def login():
             postquerylist = list(postquery.fetch(limit=10))
 
             for postimageeach in postquerylist:
-                download_blob("s3810585-storage",
+                download_blob("s3810585-storage-task1",
                               postimageeach["img"],
                               "static/postimage/" + postimageeach["img"])
 
-            return render_template('forum.html', user_name = session["CurrentActiveUser"],
+            return render_template('forum.html', user_name = session["CurrentActiveUserName"],
                                    userImageURL = "static/userimage/"+taskImg["userimage"],
                                    postquerylist=postquerylist
                                    )
         else:
-            return render_template_string("ID or password is invalid")
+            return render_template('notification.html',
+                                   notification = "ID or Password is Invalid",
+                                   userlog="login",
+                                   userlogimage="log-in",
+                                   userlogtext=" Login"
+                                   )
 
     else:
         return render_template('login.html')
@@ -101,30 +140,50 @@ def register():
             query = datastore_client.query(kind="Task")
             query.add_filter("user_name", "=", user_name)
             if len(list(query.fetch())) > 0:
-                return render_template_string("The username already exists")
+                return render_template('notification.html',
+                                       notification="The Username Already Exists",
+                                       userlog="login",
+                                       userlogimage="log-in",
+                                       userlogtext=" Login"
+                                       )
             else:
                 #Updaing entity
                 task["user_name"] = user_name
                 task["password"] = password
                 datastore_client.put(task)
 
-                userImg["bucketname"] = "s3810585-storage"
+                userImg["bucketname"] = "s3810585-storage-task1"
                 userImg["userimage"] = img.filename
                 datastore_client.put(userImg)
 
-                upload_blob("s3810585-storage", img.filename, img.filename)
+                upload_blob("s3810585-storage-task1", img.filename, img.filename)
                 os.remove(img.filename)
 
                 return render_template('login.html')
         else:
-            return render_template_string("The ID already exists")
+            return render_template('notification.html',
+                                   notification="The ID Already Exists",
+                                   userlog="login",
+                                   userlogimage="log-in",
+                                   userlogtext=" Login"
+                                   )
 
-    return render_template('register.html')
+    if 'CurrentActiveUser' in session:
+        return render_template('register.html',
+                               userlog = "logout",
+                               userlogimage = "log-out",
+                               userlogtext = " Logout")
+    else:
+        return render_template('register.html',
+                               userlog="login",
+                               userlogimage="log-in",
+                               userlogtext=" Login")
 
 @app.route('/userpage', methods=['GET', 'POST'])
 def userpage():
     postquery = datastore_client.query(kind="postbox")
-    postquery.add_filter("id", "=", "s38105850")
+    id = session["CurrentActiveUser"]
+    postquery.add_filter("id", "=", id)
     postquerylist = list(postquery.fetch())
     return render_template('userpage.html',
                            postquerylist = postquerylist)
@@ -152,7 +211,8 @@ def editpost():
         # postChangeTask["img"] = img.filename
 
     postquery = datastore_client.query(kind="postbox")
-    postquery.add_filter("id", "=", "s38105850")
+    id = session["CurrentActiveUser"]
+    postquery.add_filter("id", "=", id)
     postquerylist = list(postquery.fetch())
     return render_template('userpage.html',
                            postquerylist = postquerylist)
@@ -168,7 +228,7 @@ def pushchange():
         msg = req.get("msg")
         img = request.files['file']
         img.save(img.filename)
-        upload_blob("s3810585-storage", img.filename, img.filename)
+        upload_blob("s3810585-storage-task1", img.filename, img.filename)
 
         postChangeKey = datastore_client.key('postbox', int(postid))
         postChangeTask = datastore_client.get(postChangeKey)
@@ -178,11 +238,12 @@ def pushchange():
         datastore_client.put(postChangeTask)
 
         postquery = datastore_client.query(kind="postbox")
-        postquery.add_filter("id", "=", "s38105850")
+        id = session["CurrentActiveUser"]
+        postquery.add_filter("id", "=", id)
         postquerylist = list(postquery.fetch())
 
 
-        download_blob("s3810585-storage",
+        download_blob("s3810585-storage-task1",
                       postChangeTask["img"],
                       "static/postimage/" + postChangeTask["img"])
 
@@ -207,7 +268,14 @@ def changepass():
             datastore_client.put(changeTask)
             return render_template('userpage.html')
         else:
-            return render_template_string("The old password is incorrect")
+
+            return render_template('notification.html',
+                                   notification="The Old Password is Incorrect",
+                                   userlog="logout",
+                                   userlogimage="log-in",
+                                   userlogtext=" Logout"
+                                   )
+
 
 @app.route('/postarea', methods=['GET', 'POST'])
 def postarea():
@@ -219,7 +287,7 @@ def postarea():
         msg = req.get("msg")
         img = request.files['file']
         img.save(img.filename)
-        upload_blob("s3810585-storage", img.filename, img.filename)
+        upload_blob("s3810585-storage-task1", img.filename, img.filename)
         id = session["CurrentActiveUser"]
 
         keyImg = datastore_client.key(kindUserImg, id)
@@ -245,11 +313,12 @@ def postarea():
         postquerylist = list(postquery.fetch(limit=10))
 
         for postimageeach in postquerylist:
-            download_blob("s3810585-storage",
+            download_blob("s3810585-storage-task1",
                           postimageeach["img"],
                           "static/postimage/"+postimageeach["img"])
 
-        return render_template('forum.html', user_name=session["CurrentActiveUser"],
+        return render_template('forum.html',
+                               user_name=session["CurrentActiveUserName"],
                                userImageURL="static/userimage/" + taskImg["userimage"],
                                postquerylist=postquerylist)
 

@@ -1,49 +1,66 @@
 <!doctype html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
-<head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% extends "base.html" %}
+{% block login %}
+<li><a href="logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+{% endblock %}
+{% block body %}
+<h1 style="color: #CDCDCD;
+    padding-left: 9.5%;
+    padding-bottom: 3%;">FORUM PAGE</h1>
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <title>FORUM PAGE</title>
-</head>
-<body>
-<h1>FORUM PAGE</h1>
 
-<a href="logout"> LOGOUT </a>
-
-<div class="container">
-    <div class="row">
-        <div class="col-sm">
-            <h1>User Area</h1><br>
-            <a href="userpage"> {{ user_name }} </a> <br>
-            <img src={{userImageURL}} width="80" height="80">
+<div class="container" >
+    <div class="row" >
+        <div class="col col-lg-6"
+             style="background: #CDCDCD;
+             flex: 1;
+             height: -webkit-fill-available;
+             background: lightgrey;
+             border: 3px solid grey;
+             text-align: center;">
+            <h1 style="font-size: -webkit-xxx-large+30px">User Area</h1><br>
+            <a href="userpage" style="font-size: -webkit-xxx-large;"> {{ user_name }} </a> <br>
+            <img src={{userImageURL}} width="260" height="260">
         </div>
-        <div class="col-sm">
-            Message Posting Area
+        <div class="col col-lg-6"
+             style="background: #CDCDCD;
+             flex: 1;
+             height: -webkit-fill-available;
+             background: lightgrey;
+             border: 3px solid grey;">
+            <h1 style="font-size: -webkit-xxx-large+30px; text-align: center;">Message Posting Area</h1><br>
 
+
+            <div class="container" style="width:80%; padding-top: 5%;">
             <form action="postarea" method="POST"
                   enctype="multipart/form-data">
 
                 <label for="subject"><b>Subject</b></label>
-                <input type="text" placeholder="Subject" name="subject" required>
+                <input type="text" placeholder="Subject" class="form-control" name="subject" required>
 
                 <label for="msg"><b>Message Text</b></label>
-                <input type="text" placeholder="Message Text" name="msg">
+                <input type="text" placeholder="Message Text" class="form-control" name="msg">
 
                  <label for="user_img">User Image</label>
-                <input type = "file" name = "file" accept="image/*"/>
+                <input type = "file" name = "file" class="form-control" accept="image/*"/>
 
-
-                <input type="submit"> Submit </input>
+                <br> <br>
+                <input type="submit" class="btn btn-primary" style="width:100%">
             </form>
+                </div>
 
         </div>
     </div>
+    </div>
+
+<div class="container"
+     style="margin-top: 5%;
+     background: #CDCDCD;
+     padding:5%;
+     flex: 1;
+     background: lightgrey;
+     border: 3px solid grey;">
     <div class="row">
         <div class="col-sm">
             <h1>Message Display Area</h1>
@@ -59,17 +76,6 @@
             {% endfor %}
         </div>
     </div>
-</div>
+    </div>
 
-
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous"></script>
-</body>
-</html>
+{% endblock %}
