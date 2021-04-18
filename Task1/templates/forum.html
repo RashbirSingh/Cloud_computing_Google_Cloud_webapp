@@ -68,10 +68,11 @@
             {% for eachPost in postquerylist %}
             Subject: {{ eachPost.subject }} <br>
             Message Text: {{ eachPost.msg }} <br>
-            Image: <img src="static/postimage/{{ eachPost.img }}" width="360" height="240"> <br>
+<!--            Image: <img src="static/postimage/{{ eachPost.img }}" width="360" height="240"> <br>-->
+            Image: <img src="https://storage.googleapis.com/s3810585-storage-task1/{{ eachPost.img }}" width="360" height="240"> <br>
             Date and Time: {{ eachPost.datetime }} <br>
             User Name: {{ eachPost.user_names }} <br>
-            User Image: <img src="static/userimage/{{ eachPost.userImage }}" width="80" height="80"> <br>
+            User Image: <img src="https://storage.googleapis.com/s3810585-storage-task1/{{ eachPost.userImage }}" width="80" height="80"> <br>
             <hr>
             {% endfor %}
         </div>

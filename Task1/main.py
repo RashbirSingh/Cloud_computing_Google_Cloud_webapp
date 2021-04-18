@@ -5,7 +5,7 @@ from google.cloud import datastore, storage
 
 import os
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="static/s3810585assignment1task1-9ddd41bfb517.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="static/s3810585assignment1task1-8b8eee4af95f.json"
 
 datastore_client = datastore.Client()
 
@@ -17,6 +17,7 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
     blob.upload_from_filename(source_file_name)
+    blob.make_public()
 
 
 def download_blob(bucket_name, source_blob_name, destination_blob_name):
@@ -51,9 +52,9 @@ def forum():
 
         download_blob(taskImg["bucketname"],
                       taskImg["userimage"],
-                      "static/userimage/" + taskImg["userimage"])
+                      "/tmp/" + taskImg["userimage"])
         return render_template('forum.html', user_name=session["CurrentActiveUserName"],
-                               userImageURL="static/userimage/" + taskImg["userimage"],
+                               userImageURL="https://storage.googleapis.com/s3810585-storage-task1/" + taskImg["userimage"],
                                postquerylist=postquerylist
                                )
     else:
@@ -85,7 +86,7 @@ def login():
 
             download_blob(taskImg["bucketname"],
                           taskImg["userimage"],
-                          "static/userimage/"+taskImg["userimage"])
+                          "/tmp/"+taskImg["userimage"])
 
             ##GETTING POST DATA
             postquery = datastore_client.query(kind="postbox")
@@ -94,10 +95,10 @@ def login():
             for postimageeach in postquerylist:
                 download_blob("s3810585-storage-task1",
                               postimageeach["img"],
-                              "static/postimage/" + postimageeach["img"])
+                              "/tmp/" + postimageeach["img"])
 
             return render_template('forum.html', user_name = session["CurrentActiveUserName"],
-                                   userImageURL = "static/userimage/"+taskImg["userimage"],
+                                   userImageURL = "https://storage.googleapis.com/s3810585-storage-task1/"+taskImg["userimage"],
                                    postquerylist=postquerylist
                                    )
         else:
@@ -125,7 +126,7 @@ def register():
         password = req.get("password")
         user_name = req.get("user_name")
         img = request.files['file']
-        img.save(img.filename)
+        img.save("/tmp/"+img.filename)
 
         #Getting datastore client entity for user info
         key = datastore_client.key(kindUserInfo, id)
@@ -156,8 +157,8 @@ def register():
                 userImg["userimage"] = img.filename
                 datastore_client.put(userImg)
 
-                upload_blob("s3810585-storage-task1", img.filename, img.filename)
-                os.remove(img.filename)
+                upload_blob("s3810585-storage-task1", "/tmp/"+img.filename, img.filename)
+                os.remove("/tmp/"+img.filename)
 
                 return render_template('login.html')
         else:
@@ -227,8 +228,8 @@ def pushchange():
         subject = req.get("subject")
         msg = req.get("msg")
         img = request.files['file']
-        img.save(img.filename)
-        upload_blob("s3810585-storage-task1", img.filename, img.filename)
+        img.save("/tmp/"+img.filename)
+        upload_blob("s3810585-storage-task1", "/tmp/"+img.filename, img.filename)
 
         postChangeKey = datastore_client.key('postbox', int(postid))
         postChangeTask = datastore_client.get(postChangeKey)
@@ -245,7 +246,7 @@ def pushchange():
 
         download_blob("s3810585-storage-task1",
                       postChangeTask["img"],
-                      "static/postimage/" + postChangeTask["img"])
+                      "/tmp/" + postChangeTask["img"])
 
         return render_template('userpage.html',
                                postquerylist=postquerylist)
@@ -286,22 +287,22 @@ def postarea():
         subject = req.get("subject")
         msg = req.get("msg")
         img = request.files['file']
-        img.save(img.filename)
-        upload_blob("s3810585-storage-task1", img.filename, img.filename)
+        img.save("/tmp/"+img.filename)
+        upload_blob("s3810585-storage-task1", "/tmp/"+img.filename, img.filename)
         id = session["CurrentActiveUser"]
 
         keyImg = datastore_client.key(kindUserImg, id)
         taskImg = datastore_client.get(keyImg)
         download_blob(taskImg["bucketname"],
                       taskImg["userimage"],
-                      "static/userimage/"+taskImg["userimage"])
+                      "/tmp/"+taskImg["userimage"])
 
         keyPostBox = datastore_client.key(kindPostBox)
         taskPostBox = datastore.Entity(key=keyPostBox)
         taskPostBox["id"] = id
         taskPostBox["subject"] = subject
         taskPostBox["msg"] = msg
-        taskPostBox["user_names"] = session["CurrentActiveUser"]
+        taskPostBox["user_names"] = session["CurrentActiveUserName"]
         taskPostBox["datetime"] = datetime.now()
         taskPostBox["userImage"] = taskImg["userimage"]
         taskPostBox["img"] = img.filename
@@ -315,11 +316,11 @@ def postarea():
         for postimageeach in postquerylist:
             download_blob("s3810585-storage-task1",
                           postimageeach["img"],
-                          "static/postimage/"+postimageeach["img"])
+                          "/tmp/"+postimageeach["img"])
 
         return render_template('forum.html',
                                user_name=session["CurrentActiveUserName"],
-                               userImageURL="static/userimage/" + taskImg["userimage"],
+                               userImageURL="https://storage.googleapis.com/s3810585-storage-task1/"+ taskImg["userimage"],
                                postquerylist=postquerylist)
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -332,12 +333,3 @@ def logout():
 if __name__ == '__main__':
 
     app.run(host='127.0.0.1', port=8080, debug=True)
-
-
-kind = "Task"
-name = "s38105859"
-task_key = datastore_client.key(kind, name)
-task = datastore.Entity(key=task_key)
-task["user_name"] = "rashbir kohli9"
-task["password"] = "901234"
-datastore_client.put(task)

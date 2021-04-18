@@ -28,10 +28,10 @@
             {% for eachPost in postquerylist %}
             <b> Subject: </b> {{ eachPost.subject }} <br>
             <b> Message Text: </b>  {{ eachPost.msg }} <br>
-            <b> Image: </b> <img src="static/postimage/{{ eachPost.img }}" width="360" height="240"> <br>
+            <b> Image: </b> <img src="https://storage.googleapis.com/s3810585-storage-task1/{{ eachPost.img }}" width="360" height="240"> <br>
             <b> Date and Time: </b> {{ eachPost.datetime }} <br>
             <b> User Name: </b> {{ eachPost.user_names }} <br>
-            <b> User Image: </b> <img src="static/userimage/{{ eachPost.userImage }}" width="80" height="80">
+            <b> User Image: </b> <img src="https://storage.googleapis.com/s3810585-storage-task1/{{ eachPost.userImage }}" width="80" height="80">
             <br><br>
             <form action="editpost" method="post">
                 <input name="postid" type="hidden" value="{{ eachPost.id }}">
